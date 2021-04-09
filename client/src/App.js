@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import Jumbotron from './components/Jumbotron'
 import Form from './components/Form'
 import List from './components/List'
@@ -6,8 +7,39 @@ import {
   Row,
   Col
 } from 'reactstrap'
+import ItemContext from './utils/ItemContext'
+import Item from './utils/ItemAPI'
 
 const App = () => {
+  const [itemState, setItemState] = useState({
+    text: '',
+    items: []
+  })
+
+  itemState.handleInputChange = ({ target }) => {
+    setItemState({ ...itemState, [target.name]: target.value })
+  }
+
+  itemState.handleAddItem = event => {
+    event.preventDefault()
+    Item.addItem({
+      text: itemState.text,
+      isDone: false
+    })
+      .then(({ data: item }) => {
+        const items = [...itemState.items]
+        items.push(item)
+        setItemState({ ...itemState, items, text: '' })
+      })
+      .catch(err => console.error(err))
+  }
+
+  useEffect(() => {
+    Item.getItems()
+      .then(({ data: items }) => setItemState({ ...itemState, items }))
+      .catch(err => console.error(err))
+  }, [])
+
   return (
     <>
       <Container>
@@ -17,12 +49,14 @@ const App = () => {
           </Col>
         </Row>
         <Row>
-          <Col xs='6'>
-            <Form />
-          </Col>
-          <Col xs='6'>
-            <List />
-          </Col>
+          <ItemContext.Provider value={itemState}>
+            <Col xs='6'>
+              <Form />
+            </Col>
+            <Col xs='6'>
+              <List />
+            </Col>
+          </ItemContext.Provider>
         </Row>
       </Container>
     </>

@@ -1,15 +1,18 @@
+import { useContext } from 'react'
 import {
   ListGroup,
   ListGroupItem
 } from 'reactstrap'
+import ItemContext from '../../utils/ItemContext'
 
 const List = () => {
+  const { items } = useContext(ItemContext)
+
   return (
     <ListGroup>
-      <ListGroupItem>Take out trash</ListGroupItem>
-      <ListGroupItem>Cook dinner</ListGroupItem>
-      <ListGroupItem>Do laundry</ListGroupItem>
-      <ListGroupItem>Walk dog</ListGroupItem>
+      {
+        items.map(item => <ListGroupItem key={item._id}>{item.text}</ListGroupItem>)
+      }
     </ListGroup>
   )
 }
